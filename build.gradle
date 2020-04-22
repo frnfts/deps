@@ -5,12 +5,37 @@ plugins {
     id 'java'
 }
 
+// Init with values from gradle.properties which Gradle reads by default
+def repoUrl = "${remote_repo_url}"
+def repoUsername = "${remote_repo_user}"
+def repoPassword = "${remote_repo_passwd}"
+
+// If repo.config exists, override repoUrl, repoUsername, and repoPassword with values 
+// being read from repo.config 
+def f = file("repo.config")
+if( f.exists() ){
+	Properties props = new Properties()
+	f.withInputStream { props.load(it) }
+	repoUrl = props.get("remote_repo_url")
+	repoUsername = props.get("remote_repo_user")
+	repoPassword = props.get("remote_repo_passwd")
+}
+println "repo properties ---> ${repoUrl} - ${repoUsername}"
+
 allprojects {
     group = 'com.sample'
     version = '1.0'
+
     repositories {
         jcenter()
-	mavenCentral() 
+		//mavenCentral()
+		maven {
+        	url "${repoUrl}"
+        	credentials {
+            	username = "${repoUsername}"
+            	password = "${repoPassword}"
+        	}
+    	} 
     } 
 }
 
